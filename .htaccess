@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /projetF/
+
+# Ne pas appliquer les règles aux dossiers et fichiers existants
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rediriger toutes les requêtes vers le router.php
+RewriteRule ^(.*)$ router.php?url=$1 [QSA,L] 
