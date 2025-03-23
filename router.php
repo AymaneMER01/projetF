@@ -48,6 +48,30 @@ switch ($action) {
         $controller->view();
         break;
     
+    case 'project_delete':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new ProjectController();
+        $controller->delete();
+        break;
+    
+    case 'project_edit':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new ProjectController();
+        $controller->edit();
+        break;
+    
+    case 'project_update':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new ProjectController();
+        $controller->update();
+        break;
+    
     // Recherche d'utilisateurs et invitation de membres
     case 'search_users':
         if (!isset($_SESSION['user_id'])) {

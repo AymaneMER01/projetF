@@ -26,6 +26,19 @@
     <h1 class="mb-4"><?php echo htmlspecialchars($project->title); ?></h1>
     <p class="lead mb-4"><?php echo htmlspecialchars($project->description); ?></p>
     
+    <?php if (ProjectMember::getMemberRole($project->id, $_SESSION['user_id']) === 'propriétaire'): ?>
+    <div class="mb-4">
+      <div class="d-flex justify-content-end gap-2">
+        <a href="<?php echo BASE_URL; ?>/router.php?action=project_edit&id=<?php echo $project->id; ?>" class="btn btn-warning text-white">
+          <i class="bi bi-pencil-square"></i> Modifier le projet
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProjectModal">
+          <i class="bi bi-trash"></i> Supprimer le projet
+        </button>
+      </div>
+    </div>
+    <?php endif; ?>
+    
     <!-- Section Membres -->
     <div class="card mb-4">
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -389,6 +402,30 @@
       }
     });
   </script>
+  
+  <!-- Modal de confirmation de suppression de projet -->
+  <?php if (ProjectMember::getMemberRole($project->id, $_SESSION['user_id']) === 'propriétaire'): ?>
+  <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteProjectModalLabel">Confirmer la suppression</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer ce projet ?</p>
+          <p class="text-danger"><strong>Attention :</strong> Cette action est irréversible et supprimera toutes les tâches, messages et documents associés à ce projet.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <a href="<?php echo BASE_URL; ?>/router.php?action=project_delete&id=<?php echo $project->id; ?>" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Supprimer définitivement
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
   
   <?php include ROOT_DIR . '/views/partials/footer.php'; ?>
 </body>

@@ -188,4 +188,112 @@ class ProjectController {
         
         include ROOT_DIR . '/views/dashboard.php';
     }
+    
+    /**
+     * Supprime un projet
+     */
+    public function delete() {
+        // Vérifie si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        
+        // Récupère l'ID du projet à supprimer
+        $project_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        
+        if (!$project_id) {
+            redirect('router.php?action=dashboard&error=Identifiant de projet invalide');
+        }
+        
+        // Vérifie si l'utilisateur est le propriétaire du projet
+        if (!Project::isOwner($project_id, $_SESSION['user_id'])) {
+            redirect('router.php?action=dashboard&error=Vous n\'êtes pas autorisé à supprimer ce projet');
+        }
+        
+        // Supprime le projet
+        if (Project::delete($project_id)) {
+            redirect('router.php?action=dashboard&success=Projet supprimé avec succès');
+        } else {
+            redirect('router.php?action=dashboard&error=Une erreur est survenue lors de la suppression du projet');
+        }
+    }
+    
+    /**
+     * Affiche le formulaire de modification d'un projet
+     */
+    public function edit() {
+        // Vérifie si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        
+        // Récupère l'ID du projet à modifier
+        $project_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        
+        if (!$project_id) {
+            redirect('router.php?action=dashboard&error=Identifiant de projet invalide');
+        }
+        
+        // Récupère les informations du projet
+        $project = Project::findById($project_id);
+        
+        if (!$project) {
+            redirect('router.php?action=dashboard&error=Projet introuvable');
+        }
+        
+        // Vérifie si l'utilisateur est le propriétaire du projet
+        if (!Project::isOwner($project_id, $_SESSION['user_id'])) {
+            redirect('router.php?action=project_view&id=' . $project_id . '&error=Vous n\'êtes pas autorisé à modifier ce projet');
+        }
+        
+        // Affiche la vue
+        include ROOT_DIR . '/views/project_edit.php';
+    }
+    
+    /**
+     * Traite la modification d'un projet
+     */
+    public function update() {
+        // Vérifie si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        
+        // Vérifie si la requête est en POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('router.php?action=dashboard');
+        }
+        
+        // Récupère les données du formulaire
+        $project_id = isset($_POST['project_id']) ? intval($_POST['project_id']) : 0;
+        $title = isset($_POST['title']) ? trim($_POST['title']) : '';
+        $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+        
+        // Vérifie l'ID du projet
+        if (!$project_id) {
+            redirect('router.php?action=dashboard&error=Identifiant de projet invalide');
+        }
+        
+        // Vérifie si l'utilisateur est le propriétaire du projet
+        if (!Project::isOwner($project_id, $_SESSION['user_id'])) {
+            redirect('router.php?action=project_view&id=' . $project_id . '&error=Vous n\'êtes pas autorisé à modifier ce projet');
+        }
+        
+        // Vérifie que le titre n'est pas vide
+        if (empty($title)) {
+            $project = Project::findById($project_id);
+            $error = "Le titre du projet est obligatoire.";
+            include ROOT_DIR . '/views/project_edit.php';
+            return;
+        }
+        
+        // Met à jour le projet
+        if (Project::update($project_id, $title, $description)) {
+            redirect('router.php?action=project_view&id=' . $project_id . '&success=Projet modifié avec succès');
+        } else {
+            $project = Project::findById($project_id);
+            $error = "Une erreur est survenue lors de la modification du projet.";
+            include ROOT_DIR . '/views/project_edit.php';
+        }
+    }
 }

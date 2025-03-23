@@ -93,4 +93,45 @@ class Project {
             return [];
         }
     }
+    
+    // Supprimer un projet
+    public static function delete($project_id) {
+        global $pdo;
+        try {
+            $stmt = $pdo->prepare("DELETE FROM projects WHERE id = :project_id");
+            return $stmt->execute([':project_id' => $project_id]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    
+    // Vérifier si un utilisateur est propriétaire d'un projet
+    public static function isOwner($project_id, $user_id) {
+        global $pdo;
+        try {
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE id = :project_id AND owner_id = :user_id");
+            $stmt->execute([
+                ':project_id' => $project_id,
+                ':user_id' => $user_id
+            ]);
+            return ($stmt->fetchColumn() > 0);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+    
+    // Mettre à jour un projet
+    public static function update($project_id, $title, $description) {
+        global $pdo;
+        try {
+            $stmt = $pdo->prepare("UPDATE projects SET title = :title, description = :description, updated_at = NOW() WHERE id = :project_id");
+            return $stmt->execute([
+                ':title' => $title,
+                ':description' => $description,
+                ':project_id' => $project_id
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
 }
