@@ -10,7 +10,11 @@
   
   <div class="container mt-4">
     <h1 class="mb-4">Tableau de Bord</h1>
-    <h3>Bienvenue, <?php echo htmlspecialchars($username); ?></h3>
+    <?php if (isset($username)): ?>
+      <h3>Bienvenue, <?php echo htmlspecialchars($username); ?></h3>
+    <?php else: ?>
+      <h3>Bienvenue sur votre tableau de bord</h3>
+    <?php endif; ?>
     
     <div class="row mt-4">
       <div class="col-md-8">

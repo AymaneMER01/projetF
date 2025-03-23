@@ -24,7 +24,7 @@
         <?php endif; ?>
       </ul>
       <ul class="navbar-nav ms-auto">
-        <?php if (isset($_SESSION['user_id'])): ?>
+        <?php if (isset($_SESSION['user_id']) && isset($_SESSION['username'])): ?>
           <li class="nav-item">
             <span class="navbar-text me-3">
               <i class="bi bi-person-circle"></i> Bonjour, <?php echo htmlspecialchars($_SESSION['username']); ?>
