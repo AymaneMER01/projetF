@@ -24,12 +24,7 @@
     <?php endif; ?>
     
     <h1 class="mb-4"><?php echo htmlspecialchars($project->title); ?></h1>
-    <p class="lead"><?php echo htmlspecialchars($project->description); ?></p>
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5><i class="bi bi-star-fill text-warning"></i> Score: <?php echo $project->score; ?></h5>
-      </div>
-    </div>
+    <p class="lead mb-4"><?php echo htmlspecialchars($project->description); ?></p>
     
     <!-- Section Membres -->
     <div class="card mb-4">

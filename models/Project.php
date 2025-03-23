@@ -7,16 +7,14 @@ class Project {
     public $title;
     public $description;
     public $owner_id;
-    public $score;
     public $created_at;
     public $updated_at;
     
-    public function __construct($id, $title, $description, $owner_id, $score, $created_at, $updated_at) {
+    public function __construct($id, $title, $description, $owner_id, $created_at, $updated_at) {
         $this->id          = $id;
         $this->title       = $title;
         $this->description = $description;
         $this->owner_id    = $owner_id;
-        $this->score       = $score;
         $this->created_at  = $created_at;
         $this->updated_at  = $updated_at;
     }
@@ -50,7 +48,6 @@ class Project {
                     $project['title'],
                     $project['description'],
                     $project['owner_id'],
-                    $project['score'],
                     $project['created_at'],
                     $project['updated_at']
                 );
@@ -87,7 +84,6 @@ class Project {
                     $project['title'],
                     $project['description'],
                     $project['owner_id'],
-                    $project['score'],
                     $project['created_at'],
                     $project['updated_at']
                 );
@@ -95,20 +91,6 @@ class Project {
             return $projects;
         } catch (PDOException $e) {
             return [];
-        }
-    }
-    
-    // Mise à jour du score d'un projet
-    public static function updateScore($project_id, $score) {
-        global $pdo;
-        try {
-            $stmt = $pdo->prepare("UPDATE projects SET score = :score WHERE id = :project_id");
-            return $stmt->execute([
-                ':score'      => $score,
-                ':project_id' => $project_id
-            ]);
-        } catch (PDOException $e) {
-            return false;
         }
     }
 }

@@ -158,23 +158,6 @@ class ProjectController {
         }
     }
     
-    // Mise à jour du score d'un projet (logique à développer selon vos critères)
-    public function updateScore() {
-        if (!isset($_SESSION['user_id'])) {
-            redirect('router.php?action=login');
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $project_id = intval($_POST['project_id']);
-            $score      = intval($_POST['score']);
-            if (Project::updateScore($project_id, $score)) {
-                echo "Score mis à jour.";
-            } else {
-                echo "Erreur lors de la mise à jour du score.";
-            }
-        }
-    }
-    
     // Liste des projets pour le tableau de bord
     public function listProjects() {
         if (!isset($_SESSION['user_id'])) {
