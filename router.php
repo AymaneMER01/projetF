@@ -82,6 +82,38 @@ switch ($action) {
         $controller->listByProject();
         break;
     
+    case 'task_edit':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new TaskController();
+        $controller->edit();
+        break;
+    
+    case 'task_update':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new TaskController();
+        $controller->update();
+        break;
+    
+    case 'task_update_status':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new TaskController();
+        $controller->updateStatus();
+        break;
+    
+    case 'task_assign':
+        if (!isset($_SESSION['user_id'])) {
+            redirect('router.php?action=login');
+        }
+        $controller = new TaskController();
+        $controller->assignTask();
+        break;
+    
     // Messages
     case 'message_form':
         if (!isset($_SESSION['user_id'])) {

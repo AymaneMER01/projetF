@@ -37,6 +37,22 @@
                 <label for="due_date" class="form-label">Date d'échéance</label>
                 <input type="date" class="form-control" id="due_date" name="due_date">
               </div>
+              
+              <?php if (isset($is_owner) && $is_owner && isset($members) && count($members) > 0): ?>
+              <div class="mb-3">
+                <label for="assigned_to" class="form-label">Attribuer à</label>
+                <select class="form-select" id="assigned_to" name="assigned_to">
+                  <option value="">-- Sélectionner un membre --</option>
+                  <?php foreach ($members as $member): ?>
+                    <option value="<?php echo $member['user_id']; ?>">
+                      <?php echo htmlspecialchars($member['username']); ?> 
+                      (<?php echo htmlspecialchars(ucfirst($member['role'])); ?>)
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <?php endif; ?>
+              
               <div class="d-grid">
                 <button type="submit" class="btn btn-success">
                   <i class="bi bi-plus-circle"></i> Créer la Tâche

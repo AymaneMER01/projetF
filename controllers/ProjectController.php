@@ -54,6 +54,17 @@ class ProjectController {
             return;
         }
         
+        // Vérifier si l'utilisateur est membre du projet
+        $user_role = ProjectMember::getMemberRole($projectId, $_SESSION['user_id']);
+        if (!$user_role) {
+            $error = "Vous n'êtes pas membre de ce projet.";
+            include ROOT_DIR . '/views/error.php';
+            return;
+        }
+        
+        // Déterminer si l'utilisateur est propriétaire du projet
+        $is_owner = ($user_role === 'propriétaire');
+        
         // Récupérer les membres, tâches, etc.
         $members = ProjectMember::getMembers($projectId);
         

@@ -9,6 +9,20 @@
   <?php include ROOT_DIR . '/views/partials/navbar.php'; ?>
   
   <div class="container mt-4">
+    <?php if (isset($_GET['error'])): ?>
+      <div class="alert alert-danger alert-dismissible fade show" id="error-alert" role="alert">
+        <?php echo htmlspecialchars($_GET['error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_GET['success'])): ?>
+      <div class="alert alert-success alert-dismissible fade show" id="success-alert" role="alert">
+        <?php echo htmlspecialchars($_GET['success']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+    
     <h1 class="mb-4"><?php echo htmlspecialchars($project->title); ?></h1>
     <p class="lead"><?php echo htmlspecialchars($project->description); ?></p>
     <div class="card mb-4">
@@ -47,20 +61,107 @@
     <div class="card mb-4">
       <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="bi bi-check2-square"></i> Tâches</h4>
-        <a href="<?php echo BASE_URL; ?>/router.php?action=task_create&project_id=<?php echo $project->id; ?>" class="btn btn-light btn-sm">
-          <i class="bi bi-plus-circle"></i> Ajouter une tâche
-        </a>
+        <?php if (ProjectMember::getMemberRole($project->id, $_SESSION['user_id']) === 'propriétaire'): ?>
+          <a href="<?php echo BASE_URL; ?>/router.php?action=task_create&project_id=<?php echo $project->id; ?>" class="btn btn-light btn-sm">
+            <i class="bi bi-plus-circle"></i> Ajouter une tâche
+          </a>
+        <?php endif; ?>
       </div>
       <div class="card-body">
         <?php if (isset($tasks) && count($tasks) > 0): ?>
           <div class="list-group">
             <?php foreach ($tasks as $task): ?>
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <h5><?php echo htmlspecialchars($task->title); ?></h5>
-                  <small class="text-muted">Date d'échéance: <?php echo htmlspecialchars($task->due_date); ?></small>
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="mb-0">
+                    <?php 
+                    // Icône de statut
+                    $statusIcon = '';
+                    $statusClass = '';
+                    switch ($task->status) {
+                      case 'À faire':
+                        $statusIcon = 'bi-circle';
+                        $statusClass = 'text-danger';
+                        break;
+                      case 'En cours':
+                        $statusIcon = 'bi-play-circle-fill';
+                        $statusClass = 'text-warning';
+                        break;
+                      case 'Terminé':
+                        $statusIcon = 'bi-check-circle-fill';
+                        $statusClass = 'text-success';
+                        break;
+                      default:
+                        $statusIcon = 'bi-question-circle';
+                        $statusClass = 'text-secondary';
+                    }
+                    ?>
+                    <i class="bi <?php echo $statusIcon; ?> <?php echo $statusClass; ?>"></i>
+                    <?php echo htmlspecialchars($task->title); ?>
+                  </h5>
+                  
+                  <?php if (ProjectMember::getMemberRole($project->id, $_SESSION['user_id']) === 'propriétaire'): ?>
+                    <a href="<?php echo BASE_URL; ?>/router.php?action=task_edit&id=<?php echo $task->id; ?>" class="btn btn-warning btn-sm text-white">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
+                  <?php endif; ?>
                 </div>
-                <span class="badge bg-info"><?php echo htmlspecialchars($task->status); ?></span>
+                
+                <div class="d-flex justify-content-between mb-2">
+                  <div>
+                    <?php if (!empty($task->description)): ?>
+                      <p class="mb-1 text-muted"><?php echo htmlspecialchars($task->description); ?></p>
+                    <?php endif; ?>
+                    <?php if (!empty($task->due_date)): ?>
+                      <span class="badge bg-secondary">
+                        <i class="bi bi-calendar"></i> 
+                        Échéance: <?php echo date('d/m/Y', strtotime($task->due_date)); ?>
+                      </span>
+                    <?php endif; ?>
+                  </div>
+                  <span class="badge bg-<?php echo $task->status === 'À faire' ? 'danger' : ($task->status === 'En cours' ? 'warning' : 'success'); ?>">
+                    <?php echo htmlspecialchars($task->status); ?>
+                  </span>
+                </div>
+                
+                <?php if ($task->assigned_to): ?>
+                  <div class="mt-2 small">
+                    <i class="bi bi-person-badge"></i> 
+                    Assignée à: <strong><?php echo htmlspecialchars($task->assigned_username ?? 'Utilisateur inconnu'); ?></strong>
+                  </div>
+                <?php endif; ?>
+                
+                <?php if (ProjectMember::getMemberRole($project->id, $_SESSION['user_id']) === 'propriétaire'): ?>
+                  <div class="mt-2 d-flex gap-2">
+                    <!-- Formulaires de changement rapide de statut -->
+                    <form action="<?php echo BASE_URL; ?>/router.php?action=task_update_status" method="POST" class="d-inline-block">
+                      <input type="hidden" name="task_id" value="<?php echo $task->id; ?>">
+                      <input type="hidden" name="project_id" value="<?php echo $project->id; ?>">
+                      <input type="hidden" name="status" value="À faire">
+                      <button type="submit" class="btn btn-outline-danger btn-sm <?php echo $task->status === 'À faire' ? 'active' : ''; ?>">
+                        <i class="bi bi-circle"></i> À faire
+                      </button>
+                    </form>
+                    
+                    <form action="<?php echo BASE_URL; ?>/router.php?action=task_update_status" method="POST" class="d-inline-block">
+                      <input type="hidden" name="task_id" value="<?php echo $task->id; ?>">
+                      <input type="hidden" name="project_id" value="<?php echo $project->id; ?>">
+                      <input type="hidden" name="status" value="En cours">
+                      <button type="submit" class="btn btn-outline-warning btn-sm <?php echo $task->status === 'En cours' ? 'active' : ''; ?>">
+                        <i class="bi bi-play-circle-fill"></i> En cours
+                      </button>
+                    </form>
+                    
+                    <form action="<?php echo BASE_URL; ?>/router.php?action=task_update_status" method="POST" class="d-inline-block">
+                      <input type="hidden" name="task_id" value="<?php echo $task->id; ?>">
+                      <input type="hidden" name="project_id" value="<?php echo $project->id; ?>">
+                      <input type="hidden" name="status" value="Terminé">
+                      <button type="submit" class="btn btn-outline-success btn-sm <?php echo $task->status === 'Terminé' ? 'active' : ''; ?>">
+                        <i class="bi bi-check-circle-fill"></i> Terminé
+                      </button>
+                    </form>
+                  </div>
+                <?php endif; ?>
               </div>
             <?php endforeach; ?>
           </div>
@@ -269,6 +370,30 @@
     });
   </script>
   <?php endif; ?>
+  
+  <!-- Script pour faire disparaître les alertes après 5 secondes -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Récupérer les alertes
+      const errorAlert = document.getElementById('error-alert');
+      const successAlert = document.getElementById('success-alert');
+      
+      // Faire disparaître les alertes après 5 secondes
+      if (errorAlert) {
+        setTimeout(function() {
+          const bsAlert = new bootstrap.Alert(errorAlert);
+          bsAlert.close();
+        }, 5000);
+      }
+      
+      if (successAlert) {
+        setTimeout(function() {
+          const bsAlert = new bootstrap.Alert(successAlert);
+          bsAlert.close();
+        }, 5000);
+      }
+    });
+  </script>
   
   <?php include ROOT_DIR . '/views/partials/footer.php'; ?>
 </body>
